@@ -1,6 +1,10 @@
 package com.example.projetojogoxadrez.src.application;
 
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
 import com.example.projetojogoxadrez.src.chess.ChessPiece;
+import com.example.projetojogoxadrez.src.chess.ChessPosition;
 import com.example.projetojogoxadrez.src.chess.Color;
 
 public class UI {
@@ -22,6 +26,20 @@ public class UI {
 	public static final String ANSI_PURPLE_BACKGROUND = "\u001B[45m";
 	public static final String ANSI_CYAN_BACKGROUND = "\u001B[46m";
 	public static final String ANSI_WHITE_BACKGROUND = "\u001B[47m";
+
+    public static ChessPosition readChessPosition(Scanner sc) {
+        try {
+            System.out.print("Insira a coluna: ");
+            Integer column = sc.nextInt();
+            System.out.println();
+            System.out.print("Insira a linha: ");
+            Integer row = sc.nextInt();
+
+            return new ChessPosition(column, row);
+        } catch (RuntimeException e) {
+            throw new InputMismatchException("Erro lendo a posição de xadrez. valores válidos de 1 à 8");
+        }
+    }
 
     public static void printBoard(ChessPiece[][] pieces) {
         for(int i = 0; i < pieces.length; i++) {
