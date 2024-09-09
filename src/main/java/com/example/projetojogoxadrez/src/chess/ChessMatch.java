@@ -1,5 +1,8 @@
 package com.example.projetojogoxadrez.src.chess;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.example.projetojogoxadrez.src.boardgame.Board;
 import com.example.projetojogoxadrez.src.boardgame.Piece;
 import com.example.projetojogoxadrez.src.boardgame.Position;
@@ -10,6 +13,8 @@ public class ChessMatch {
     private Integer turn;
     private Color currentPlayer;
     private Board board;
+    private List<Piece> piecesOnTheBoard = new ArrayList<>();
+	private List<Piece> capturedPieces = new ArrayList<>();
 
     public Integer getTurn() {
         return turn;
@@ -61,6 +66,11 @@ public class ChessMatch {
         Piece capturedPiece = board.removePiece(target);
         board.placePiece(p, target);
 
+        if(capturedPiece != null) {
+			piecesOnTheBoard.remove(capturedPiece);
+			capturedPieces.add(capturedPiece);
+		}
+
         return capturedPiece;
     }
 
@@ -91,6 +101,7 @@ public class ChessMatch {
 
     private void placeNewPiece(int column, int row, ChessPiece piece) {
         board.placePiece(piece, new ChessPosition(column, row).toPosition());
+        piecesOnTheBoard.add(piece);
     }
 
     private void initialSetup() {
