@@ -2,6 +2,7 @@ package com.example.projetojogoxadrez.src.chess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.example.projetojogoxadrez.src.boardgame.Board;
 import com.example.projetojogoxadrez.src.boardgame.Piece;
@@ -15,6 +16,7 @@ public class ChessMatch {
     private Board board;
     private List<Piece> piecesOnTheBoard = new ArrayList<>();
 	private List<Piece> capturedPieces = new ArrayList<>();
+    private Boolean check;
 
     public Integer getTurn() {
         return turn;
@@ -28,6 +30,7 @@ public class ChessMatch {
         board = new Board(8, 8);
         turn = 1;
         currentPlayer = Color.BRANCO;
+        check = false;
         initialSetup();
     }
 
@@ -61,6 +64,17 @@ public class ChessMatch {
         return (ChessPiece) capturedPiece;
     }
 
+    private void undoMove(Position source, Position target, Piece capturedPiece) {
+        Piece p = board.removePiece(target);
+        board.placePiece(p, source);
+
+        if(capturedPiece != null) {
+            board.placePiece(capturedPiece, target);
+            capturedPieces.remove(capturedPiece);
+            piecesOnTheBoard.add(capturedPiece);
+        }
+    }
+
     private Piece makeMove(Position source, Position target) {
         Piece p = board.removePiece(source);
         Piece capturedPiece = board.removePiece(target);
@@ -77,6 +91,22 @@ public class ChessMatch {
     private void nextTurn() {
         turn++;
         currentPlayer = (currentPlayer == Color.BRANCO)?Color.AMARELO:Color.BRANCO;
+    }
+
+    private Color opponent(Color color) {
+        return (color == Color.BRANCO)?Color.AMARELO:Color.BRANCO;
+    }
+
+    private ChessPiece king(Color color) {
+        List<Piece> list = piecesOnTheBoard.stream().filter(x -> ((ChessPiece) x).getColor() == color).collect(Collectors.toList());
+
+        for(Piece p : list) {
+            if(p instanceof King) {
+                return (ChessPiece) p;
+            }
+        }
+
+        throw new IllegalStateException("Não existe o rei " + color + " no tabuleiro.");
     }
 
     private void validateSourcePosition(Position position) {
