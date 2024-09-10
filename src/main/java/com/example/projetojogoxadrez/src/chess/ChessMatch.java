@@ -26,6 +26,10 @@ public class ChessMatch {
         return currentPlayer;
     }
 
+    public Boolean getCheck() {
+        return check;
+    }
+
     public ChessMatch() {
         board = new Board(8, 8);
         turn = 1;
@@ -59,6 +63,13 @@ public class ChessMatch {
         validateSourcePosition(source);
         validateTargetPosition(source, target);
         Piece capturedPiece = makeMove(source, target);
+
+        if(testCheck(currentPlayer)) {
+            undoMove(source, target, capturedPiece);
+            throw new ChessException("Você não pode se colocar em xeque.");
+        }
+
+        check = (testCheck(opponent(currentPlayer)));
         nextTurn();
         
         return (ChessPiece) capturedPiece;
@@ -107,6 +118,21 @@ public class ChessMatch {
         }
 
         throw new IllegalStateException("Não existe o rei " + color + " no tabuleiro.");
+    }
+
+    private boolean testCheck(Color color) {
+        Position kingPosition = king(color).getChessPosition().toPosition();
+        List<Piece> opponentPieces = piecesOnTheBoard.stream().filter(x -> ((ChessPiece) x).getColor() == opponent(color)).collect(Collectors.toList());
+
+        for(Piece p : opponentPieces) {
+            boolean[][] mat = p.possibleMoves();
+
+            if(mat[kingPosition.getRow()][kingPosition.getColumn()]) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void validateSourcePosition(Position position) {
