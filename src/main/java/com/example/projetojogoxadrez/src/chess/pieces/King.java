@@ -2,12 +2,16 @@ package com.example.projetojogoxadrez.src.chess.pieces;
 
 import com.example.projetojogoxadrez.src.boardgame.Board;
 import com.example.projetojogoxadrez.src.boardgame.Position;
+import com.example.projetojogoxadrez.src.chess.ChessMatch;
 import com.example.projetojogoxadrez.src.chess.ChessPiece;
 import com.example.projetojogoxadrez.src.chess.Color;
 
 public class King extends ChessPiece {
-    public King(Board board, Color color) {
+    private ChessMatch chessMatch;
+
+    public King(Board board, Color color, ChessMatch chessMatch) {
         super(board, color);
+        this.chessMatch = chessMatch;
     }
 
     @Override
@@ -19,6 +23,12 @@ public class King extends ChessPiece {
         ChessPiece p = (ChessPiece) getBoard().piece(position);
 
         return p == null || p.getColor() != getColor();
+    }
+
+    private boolean testRookCastling(Position position) {
+        ChessPiece p = (ChessPiece) getBoard().piece(position);
+
+        return p != null && p instanceof Rook && p.getColor() == getColor() && p.getMoveCount() == 0;
     }
 
     @Override
@@ -81,6 +91,34 @@ public class King extends ChessPiece {
         if(getBoard().positionExists(p) && canMove(p)) {
             mat[p.getRow()][p.getColumn()] = true;
         }
+
+        // movimento especial do roque
+		if(getMoveCount() == 0 && !chessMatch.getCheck()) {
+			// movimento especial roque e do rei
+			Position posT1 = new Position(position.getRow(), position.getColumn() +3);
+
+			if(testRookCastling(posT1)) {
+				Position p1 = new Position(position.getRow(), position.getColumn() +1);
+				Position p2 = new Position(position.getRow(), position.getColumn() +2);
+
+				if(getBoard().piece(p1) == null && getBoard().piece(p2) == null) {
+					mat[position.getRow()][position.getColumn() + 2] = true;
+				}
+			}
+
+			// movimento especial roque e da rainha
+			Position posT2 = new Position(position.getRow(), position.getColumn() -4);
+
+			if(testRookCastling(posT2)) {
+				Position p1 = new Position(position.getRow(), position.getColumn() -1);
+				Position p2 = new Position(position.getRow(), position.getColumn() -2);
+				Position p3 = new Position(position.getRow(), position.getColumn() -3);
+
+				if(getBoard().piece(p1) == null && getBoard().piece(p2) == null && getBoard().piece(p3) == null) {
+					mat[position.getRow()][position.getColumn() -2] = true;
+				}
+			}
+		}
 
         return mat;
     }
